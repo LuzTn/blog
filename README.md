@@ -16,3 +16,5 @@ spring.jpa.hibernate.ddl-auto=create
 spring.datasource.url=jdbc:mysql://localhost:3306/db_example
 spring.datasource.username=DBuser //votre nom d'utilisateur de la base de données
 spring.datasource.password=ThePassword //le mot de passe de la base de données
+après avoir démarré le projet avec spring boot utilisez ce chemin: 
+http://localhost:8080/index.html

@@ -7,7 +7,7 @@ JDK 1.8+
 Maven 3.0+
 Pour lancer le projet, il faut suivre les étapes suivantes
 1. Importer le projet dans votre IDE(on a travaillé avec IntelliJ)
-git clone https://github.com/LuzTn/projetWeb.git
+git clone https://github.com/LuzTn/projetWebVersionFinale.git
 2. Création de la base de données : 
 mysql> create database db_example; -- Create the new database
 

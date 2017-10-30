@@ -1,47 +1,105 @@
 <html>
 <head>
-    <link rel = "stylesheet"
-          href = "https://ajax.googleapis.com/ajax/libs/angular_material/1.0.0/angular-material.min.css">
-    <script src = "https://ajax.googleapis.com/ajax/libs/angularjs/1.4.8/angular.min.js"></script>
-    <script src = "https://ajax.googleapis.com/ajax/libs/angularjs/1.4.8/angular-animate.min.js"></script>
-    <script src = "https://ajax.googleapis.com/ajax/libs/angularjs/1.4.8/angular-aria.min.js"></script>
-    <script src = "https://ajax.googleapis.com/ajax/libs/angularjs/1.4.8/angular-messages.min.js"></script>
-    <script src = "https://ajax.googleapis.com/ajax/libs/angular_material/1.0.0/angular-material.min.js"></script>
+    <link rel="stylesheet"
+          href="https://ajax.googleapis.com/ajax/libs/angular_material/1.0.0/angular-material.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.4.8/angular.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.4.8/angular-animate.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.4.8/angular-aria.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.4.8/angular-messages.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/angular_material/1.0.0/angular-material.min.js"></script>
 
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
-    <script type = "text/javascript">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <script type="text/javascript">
         angular
             .module('Home', ['ngMaterial'])
-            .factory('myapp', ['$http', function($http) {
+            .factory('myapp', ['$http', function ($http) {
                 return $http.get('/all')
-                    .success(function(data) {
+                    .success(function (data) {
                         return data;
                     })
-                    .error(function(err) {
+                    .error(function (err) {
                         return err;
                     });
             }])
-            .controller('hCtrl', ['$scope', 'myapp', function($scope, myapp) {
-                myapp.success(function(data) {
+            .controller('hCtrl', ['$scope', 'myapp', '$http', '$window', function ($scope, myapp, $http, $window) {
+                myapp.success(function (data) {
                     $scope.data = data;
                 });
+                $scope.postContent = function (title, post) {
+                    var data = {
+                        post: post,
+                        title: title
+                    };
+//Call the services
+                    $http({
+                        method: 'POST',
+                        url: '/posts?post=' + post + '&title=?' + title,
+                        headers: {
+                            'Content-Type': 'application/json', /*or whatever type is relevant */
+                            'Accept': 'application/json' /* ditto */
+                        },
+                        data: JSON.stringify(data)
+                    }).success(
+                        function (data) {
+                            $window.location.reload();
+                        }).error(function () {
+                        $window.location.reload();
+                    })
+                };
+                $scope.editContent = function (title, post, id) {
+                    var data = {
+                        post: post,
+                        title: title,
+                        id: id
+                    };
+//Call the services
+                    $http({
+                        method: 'PUT',
+                        url: '/put?id=' + id + '&post=?' + post + '&title=' + title,
+                        headers: {
+                            'Content-Type': 'application/json', /*or whatever type is relevant */
+                            'Accept': 'application/json' /* ditto */
+                        },
+                        data: JSON.stringify(data)
+                    })
+                };
+                $scope.deletePost = function (id) {
+
+//Call the services
+                    $http({
+                        method: 'DELETE',
+                        url: '/delete?id=' + id,
+                        headers: {
+                            'Content-Type': 'application/json', /*or whatever type is relevant */
+                            'Accept': 'application/json' /* ditto */
+                        },
+                        data: id
+                    }).success(
+                        function (data) {
+                            $window.location.reload();
+                        }).error(function () {
+                        $window.location.reload();
+                    })
+                };
             }]);
     </script>
 </head>
 <body>
-<md-content ng-app="Home" ng-controller="hCtrl" layout="row" layout-align="space-around" layout-padding="layout-padding" ng-cloak="ng-cloak" class="login-form">
+<md-content ng-app="Home" ng-controller="hCtrl" layout="row" layout-align="space-around" layout-padding="layout-padding"
+            ng-cloak="ng-cloak" class="login-form">
 
     <md-card flex="flex" style="height:100%;" flex-gt-md="330">
         <nav class="navbar navbar-inverse">
             <div class="container-fluid">
                 <div class="navbar-header">
-                    <a class="navbar-brand" href="index.html">Blog fit</a>
+                    <md-button class="navbar-brand" ng-click="showme=true">Add Post</md-button>
                 </div>
             </div>
         </nav>
-        <div layout="row">
+        <div ng-hide="showme" layout="row">
             <div flex="10">
                 <h1>Chat</h1>
             </div>
@@ -49,10 +107,61 @@
                 <h1>Posts</h1>
                 <br>
                 <div ng-repeat="x in data track by $index">
-                    <p>{{x.title}}</p>
-                    <p>{{x.content}}</p>
+                    <div layout="row">
+                        <div flex="80" ng-hide="editing" ng-click="editing = true">
+                            <p><strong>{{x.title}}</strong></p>
+                            <p>{{x.post}}</p>
+                            <br>
+                        </div>
+                        <div flex="80" ng-show="editing">
+                            <md-input-container>
+                                <!-- Use floating label instead of placeholder -->
+                                <label>Title</label>
+                                <input ng-model="x.title" type="text">
+                            </md-input-container>
+                            <br>
+                            <md-input-container>
+                                <label>Content</label>
+                                <input ng-model="x.post" type="text">
+                            </md-input-container>
+                        </div>
+                        <div flex="20">
+                            <div style="height: 20px; width: 30px;">
+                                <button class="btn btn-danger" ng-click="deletePost(x.id)">
+                                    <i class="fa fa-trash-o fa-lg"></i> Delete
+                                </button>
+                            </div>
+                            <br>
+                            <div style="height: 20px; width: 30px;">
+                                <button class="btn btn-primary" ng-click="editing = false"
+                                        ng-click="editContent(title, post, x.id);">
+                                    <i class="fa fa-pencil fa-fw"></i> Edit
+                                </button>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
+        </div>
+        <div style="text-align: center;" ng-show="showme">
+            <md-content class="md-no-momentum">
+                <md-input-container>
+                    <!-- Use floating label instead of placeholder -->
+                    <label>Title</label>
+                    <input ng-model="title" type="text">
+                </md-input-container>
+                <br>
+                <md-input-container>
+                    <label>Content</label>
+                    <input ng-model="post" type="text">
+                </md-input-container>
+                <br>
+                <button type="button" class="btn btn-success" ng-click="postContent(title, post);">
+                    <i class="fa fa-floppy-o" aria-hidden="true"></i>
+                    Save
+                </button>
+
+            </md-content>
         </div>
     </md-card>
 </md-content>

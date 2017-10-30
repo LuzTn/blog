@@ -9,7 +9,7 @@ public class Posts {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
     private String title;
-    private String content;
+    private String post;
 
  /*   public void setMyDate(Date myDate) {
         this.myDate = myDate;
@@ -46,12 +46,12 @@ public class Posts {
     public Long getId() {
         return id;
     }
-    public String getContent() {
-        return content;
+    public String getPost() {
+        return post;
     }
 
-    public void setContent(String content) {
-        this.content = content;
+    public void setPost(String post) {
+        this.post = post;
     }
 
 

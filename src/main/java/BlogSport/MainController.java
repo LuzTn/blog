@@ -2,10 +2,7 @@ package BlogSport;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.*;
 
 
 @Controller    // This means that this class is a Controller
@@ -20,14 +17,14 @@ public class MainController {
 
 
     /* POST the different components of post : title , content (image: later) */
-    @GetMapping(path = "/posts") // Map ONLY GET Requests
-    public @ResponseBody
-    String addNewPost(@RequestParam String post, String title) {
+    @RequestMapping(value = "/posts", method= RequestMethod.POST) // Map ONLY GET Requests
+    @ResponseBody
+    public String addNewPost(@RequestParam(value = "post") String post, @RequestParam(value = "title") String title) {
         // @ResponseBody means the returned String is the response, not a view password
         // @RequestParam means it is a parameter from the GET or POST request
         Posts n = new Posts();
         n.setTitle(title);
-        n.setContent(post);
+        n.setPost(post);
         postsRepository.save(n);
         return "Saved";
     }
@@ -56,11 +53,12 @@ public class MainController {
     /* PUT (modify) */
     @RequestMapping("/put")
     @ResponseBody
-    public String put(long id, String content) {
+    public String put(@RequestParam(value = "id") long id, @RequestParam(value = "post") String post, @RequestParam(value = "title") String title) {
         try {
-            Posts post = postsRepository.findOne(id);
-            post.setContent(content);
-            postsRepository.save(post);
+            Posts posts = postsRepository.findOne(id);
+            posts.setPost(post);
+            posts.setTitle(title);
+            postsRepository.save(posts);
         } catch (Exception ex) {
             return "Error updating the user: " + ex.toString();
         }
